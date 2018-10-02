@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Password Generator</string>
+    <string name="password_strength">Password Strength</string>
+    <string name="generate">Generate</string>
+    <string name="generated_output">Generated Output</string>
+    <string name="banner_ad_unit_id">ca-app-pub-1300395620912543/4747213311</string>
+    <string name="about">About</string>
+    <string name="ok">GOT IT</string>
+    <string name="about_long_msg">
+        Password Generator will generate <i>random passwords</i> based on the strength you choose.
+        You can then copy the generated password to your clipboard and use it.
+        \n\n<b>Why Should I use strong passwords?</b>
+        \nA Strong password is hard to guess and more secure in cases of Cyber attacks.
+    </string>
+</resources>
