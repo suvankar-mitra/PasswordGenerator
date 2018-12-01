@@ -3,10 +3,12 @@ package com.suvankarmitra.passwordgenerator;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class AboutDialogFragment extends DialogFragment {
     @Override
@@ -25,6 +27,8 @@ public class AboutDialogFragment extends DialogFragment {
                 AboutDialogFragment.this.dismiss();
             }
         });
+        TextView textView = view.findViewById(R.id.textView);
+        textView.setMovementMethod(new ScrollingMovementMethod());
         return view;
     }
 }

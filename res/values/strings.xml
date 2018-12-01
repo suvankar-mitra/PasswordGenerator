@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Password Generator</string>
-    <string name="password_strength">Password Strength</string>
+    <string name="password_length">Password Length</string>
     <string name="generate">Generate</string>
     <string name="generated_output">Generated Output</string>
     <string name="banner_ad_unit_id">ca-app-pub-1300395620912543/4747213311</string>
@@ -11,5 +11,33 @@
         You can then copy the generated password to your clipboard and use it.
         \n\n<b>Why Should I use strong passwords?</b>
         \nA Strong password is hard to guess and more secure in cases of Cyber attacks.
+        \n\nThis app is completely <b>offline</b>, so you don\'t have to worry about eve\'s dropping
+        while accessing your passwords.
     </string>
+    <string name="alphabets">Alphabets</string>
+    <string name="numerics">Numerics</string>
+    <string name="special_characters">Special Characters</string>
+    <string name="copy_button">Copy Button</string>
+    <string name="share">Share</string>
+    <string name="set_master_password">Set Master Password</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="password">Password</string>
+    <string name="re_enter_password">Re-enter password</string>
+    <string name="set_master_pass"><i>You will enter this <b>password</b> to retrieve all saved passwords in this app. Please do not forget this password.</i></string>
+    <string name="password_dont_match">Passwords don\'t match. Please enter the passwords again.</string>
+    <string name="password_must_be">Password must be 8 characters or more long and it must have at least one upper case letter, one lower case letter, one digit and one special character. Please enter the passwords again.</string>
+    <string name="settings">Settings</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enter_master_password">Enter Master Password</string>
+    <string name="login">Login</string>
+    <string name="keep_me_logged_in">Keep me logged in</string>
+    <string name="username">User name</string>
+    <string name="application_or_website">Application or Website</string>
+    <string name="add_new">Add New</string>
+    <string name="your_list_is_empty">Your list is empty</string>
+    <string name="password_matched">Password matched!</string>
+    <string name="password_didnt_match">Password didn\'t match!</string>
+    <string name="password_something_wrong">Something went wrong while retrieving your password!</string>
 </resources>

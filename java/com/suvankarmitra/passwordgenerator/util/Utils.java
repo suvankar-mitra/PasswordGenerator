@@ -4,8 +4,23 @@ import android.support.annotation.NonNull;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Utils {
 
@@ -14,16 +29,18 @@ public class Utils {
     public static String generateRandomPassword (int length, boolean useLetters,
                                                  boolean useNumbers, boolean useSpecialChars) {
         String generated = generateRandomPassword(length, useLetters, useNumbers);
-        int replaceCount = getRandomNumberInRange(1,length/2);
-        for(int i=0; i<replaceCount; i++) {
-            int posToReplace = getRandomNumberInRange(0, generated.length()-1);
-            int specialRandom = getRandomNumberInRange(0, SPECIAL_CHARS.length-1);
-            if(!Character.isAlphabetic(generated.charAt(posToReplace))) {
-                continue;
+        if (useSpecialChars) {
+            int replaceCount = getRandomNumberInRange(1,length/2);
+            for(int i=0; i<replaceCount; i++) {
+                int posToReplace = getRandomNumberInRange(0, generated.length()-1);
+                int specialRandom = getRandomNumberInRange(0, SPECIAL_CHARS.length-1);
+                /*if(!Character.isAlphabetic(generated.charAt(posToReplace))) {
+                    continue;
+                }*/
+                String from = String.valueOf(generated.charAt(posToReplace));
+                String to = SPECIAL_CHARS[specialRandom];
+                generated = generated.replaceFirst(from, to);
             }
-            String from = String.valueOf(generated.charAt(posToReplace));
-            String to = SPECIAL_CHARS[specialRandom];
-            generated = generated.replaceFirst(from, to);
         }
         return generated;
     }
@@ -40,4 +57,8 @@ public class Utils {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
+
+
+
+
 }

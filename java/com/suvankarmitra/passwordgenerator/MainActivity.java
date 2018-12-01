@@ -6,7 +6,10 @@ import android.app.FragmentTransaction;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +17,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -23,17 +28,34 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.suvankarmitra.passwordgenerator.util.Utils;
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener{
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 
-    private TextView mOutput;
-    private TextView mStrength;
-    private SeekBar mSeekBar;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
-    private ClipboardManager clipboard;
+public class MainActivity extends AppCompatActivity implements OnDataPass{
 
-    private int strength = 8;
-    private static final int BASE_MULTIPLIER = 2;
-    private static final int BASE_STRENGTH = 8;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private ViewPagerAdapter viewPagerAdapter;
 
     private static final String TAG = "MainActivity";
 
@@ -42,51 +64,20 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // setup clipboard manager
-        clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        viewPager = findViewById(R.id.viewpager);
+        viewPager.setOffscreenPageLimit(2);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter.addFragmentAt(0, new PasswordGeneratorFragment(), "Generator");
+        //viewPagerAdapter.addFragmentAt(1,new PasswordManagerFragment(), "Manager");
+        viewPager.setAdapter(viewPagerAdapter);
 
-        AdView mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
-        Button mGenerate = findViewById(R.id.generate);
-        mOutput = findViewById(R.id.output);
-        mStrength = findViewById(R.id.strength);
-        mSeekBar = findViewById(R.id.seekBar);
-        ImageButton mCopy = findViewById(R.id.copy);
-
-        mGenerate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String generatedString = Utils.generateRandomPassword(strength,true, true, true);
-                mOutput.setText(generatedString);
-            }
-        });
-
-        mCopy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ClipData clipData = ClipData.newPlainText("password",mOutput.getText().toString());
-                clipboard.setPrimaryClip(clipData);
-                mOutput.setSelected(true);
-                Toast.makeText(MainActivity.this, "Password copied to clipboard", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        mSeekBar.setOnSeekBarChangeListener(this);
+        tabLayout = findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        String generatedString = Utils.generateRandomPassword(strength,true, true, true);
-        mOutput.setText(generatedString);
-
-        String sb = getString(R.string.password_strength) + ": " + strength;
-        mStrength.setText(sb);
-
-        mSeekBar.setProgress(0);
     }
 
     @Override
@@ -102,40 +93,47 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
             case R.id.about:
                 showAboutDialog();
                 return true;
+            case R.id.share:
+                showShareDialog();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void showShareDialog() {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_SUBJECT, "Password Generator");
+        String sAux = "\nLet me recommend you this application\n\n";
+        sAux = sAux + "https://play.google.com/store/apps/details?id=com.suvankarmitra.passwordgenerator \n\n";
+        i.putExtra(Intent.EXTRA_TEXT, sAux);
+        startActivity(Intent.createChooser(i, "Choose one"));
+    }
+
     private void showAboutDialog() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        Fragment prev = getFragmentManager().findFragmentByTag("about-dialog");
         if (prev != null) {
             ft.remove(prev);
         }
         ft.addToBackStack(null);
 
         DialogFragment dialogFragment = new AboutDialogFragment();
-        dialogFragment.show(ft, "dialog");
+        dialogFragment.show(ft, "about-dialog");
     }
 
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if(fromUser) {
-            StringBuilder sb = new StringBuilder(getString(R.string.password_strength));
-            sb.append(": ");
-            strength = progress * BASE_MULTIPLIER + BASE_STRENGTH;
-            sb.append(strength);
-            mStrength.setText(sb.toString());
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
+    public void onDataPass(String data, String intent) {
+        Toast.makeText(this, "Got data="+data + "    with intent="+intent, Toast.LENGTH_LONG).show();
+        /*if(intent.equals("PASSWORD")) {
+            try {
+                HashMap<String, byte[]> encMap = encryptBytes(data.getBytes(), data);
+                saveMapToDisk(encMap,"user_password.map");
+            } catch (NoSuchPaddingException | InvalidAlgorithmParameterException |
+                    NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException |
+                    InvalidKeyException | InvalidKeySpecException | IOException e) {
+                e.printStackTrace();
+            }
+        }*/
     }
 }
